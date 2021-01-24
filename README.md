@@ -3,9 +3,9 @@ An implementation of an algorithm for Robust statistical estimation of AR parame
 The algorithm is implemented in both [MATLAB](https://github.com/bjekic/ARSpeechParameterEstimation/tree/main/MATLAB%20code) and [Python](https://github.com/bjekic/ARSpeechParameterEstimation/tree/main/Python%20code) <br/><br/>
 ## MATLAB code consist of:<br/>
  - [The main program](https://github.com/bjekic/ARSpeechParameterEstimation/blob/main/MATLAB%20code/Main_program.m)<br/>
- - [LSQ](https://github.com/bjekic/ARSpeechParameterEstimation/blob/main/MATLAB%20code/LSQ.m) algorithm <br/>
- - [Dutter](https://github.com/bjekic/ARSpeechParameterEstimation/blob/main/MATLAB%20code/Dutter.m) algorithm <br/>
- - [WLSQ](https://github.com/bjekic/ARSpeechParameterEstimation/blob/main/MATLAB%20code/WLSQ.m) algorithm <br/><br/>
+ - [LSQ algorithm](https://github.com/bjekic/ARSpeechParameterEstimation/blob/main/MATLAB%20code/LSQ.m) <br/>
+ - [Dutter algorithm](https://github.com/bjekic/ARSpeechParameterEstimation/blob/main/MATLAB%20code/Dutter.m) <br/>
+ - [WLSQ algorithm](https://github.com/bjekic/ARSpeechParameterEstimation/blob/main/MATLAB%20code/WLSQ.m) <br/><br/>
 ## Python code consist of: <br/>
  - [The main program](https://github.com/bjekic/ARSpeechParameterEstimation/blob/main/Python%20code/Main_program.ipynb)<br/>
  - [Helper functions](https://github.com/bjekic/ARSpeechParameterEstimation/blob/main/Python%20code/help_functions.py)<br/><br/>
