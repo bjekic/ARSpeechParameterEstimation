@@ -1,30 +1,30 @@
-function theta = WLSQ(samples,p,theta0,d0) 
+function theta = WLSQ( samples, p,theta0, d0 )
 N = length(samples) - p;
 H = zeros(N,p);
-for m=1:N
+for m = 1:N
     H(m,:) = - samples(m + p - 1: -1 : m);
 end
-W=zeros(N,N);
-a4=0.5;
-epsilon=1e-6;
-continue_func=1;
-num_iter=0;
+W = zeros(N,N);
+a4 = 0.5;
+epsilon = 1e-6;
+continue_func = 1;
+num_iter = 0;
 while continue_func && num_iter<4
-    num_iter=num_iter+1;
+    num_iter = num_iter+1;
     suma = 0;
     
-    for m = 1: N        
-        eps=(samples(m+p)-H(m,:)*theta0)/d0;
-        if samples(m+p)~=H(m,:)*theta0            
-            if(abs(eps) <= a4*pi) % Andrews nonlinearity
-                ksi=sin(eps/a4);
+    for m = 1: N
+        eps = (samples(m+p)-H(m,:)*theta0)/d0;
+        if samples(m+p)~=H(m,:)*theta0
+            if ( abs(eps) <= a4*pi ) % Andrews nonlinearity
+                ksi = sin(eps/a4);
             else
-                ksi=0;
+                ksi = 0;
             end
             suma = suma +  d0^2*ksi^2;
-            W(m,m)=ksi/eps;
+            W(m,m) =ksi/eps;
         else
-            W(m,m)=1;
+            W(m,m) = 1;
         end
     end
     
@@ -33,10 +33,10 @@ while continue_func && num_iter<4
     
     continue_func = 0;
     for m=1:p
-        if ~(abs(theta(m)-theta0(m))<abs(epsilon*theta0(m)))          
-            continue_func=1;
+        if ~(abs(theta(m)-theta0(m))<abs(epsilon*theta0(m)))
+            continue_func = 1;
         end
-    end   
-    theta0=theta;
-    d0=d1;
+    end
+    theta0 =theta;
+    d0 = d1;
 end

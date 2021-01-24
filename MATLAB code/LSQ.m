@@ -1,4 +1,4 @@
-function theta0 = LSQ(samples,p) 
+function theta0 = LSQ( samples, p ) 
 N = length(samples) - p;
 H = zeros(N,p);
 for m = 1: N
