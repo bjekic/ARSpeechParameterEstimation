@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 from tqdm import tqdm
 
 
-def LSQ_algorithm(samples: np.ndarray, p: int) -> np.ndarray:
+def lsq_algorithm(samples: np.ndarray, p: int) -> np.ndarray:
     """
     LSQ algorithm for calculating AR parameters
     :param samples: the samples of the signal
@@ -26,9 +26,9 @@ def LSQ_algorithm(samples: np.ndarray, p: int) -> np.ndarray:
     return theta0.T
 
 
-def DUTTER_algorithm(samples: np.ndarray, p: int, theta0: np.ndarray) -> tuple:
+def dutter_algorithm(samples: np.ndarray, p: int, theta0: np.ndarray) -> tuple:
     """
-    DUTTER algorithm for calculating AR parameters
+    Dutter algorithm for calculating AR parameters
     :param samples: the samples of the signal
     :param p: AR model order
     :param theta0: starting theta parameters
@@ -38,7 +38,7 @@ def DUTTER_algorithm(samples: np.ndarray, p: int, theta0: np.ndarray) -> tuple:
     N = samples.shape[0] - p
     H = np.zeros((N, p))
     d0 = np.median(np.abs(samples - np.median(samples, axis=0)), axis=0) / 0.6745
-    theta0 = theta0.reshape(8, 1)
+    theta0 = theta0.reshape(p, 1)
 
     for m in range(N):
         if m == 0:
@@ -102,16 +102,16 @@ def DUTTER_algorithm(samples: np.ndarray, p: int, theta0: np.ndarray) -> tuple:
         theta0 = theta
         
     d = d0
-    return theta.reshape(8, ), d
+    return theta.reshape(p, ), d
 
 
-def WLSQ_algorithm(samples: np.ndarray, p: int, theta0: np.ndarray, d0: int) -> np.ndarray:
+def wlsq_algorithm(samples: np.ndarray, p: int, theta0: np.ndarray, d0: int) -> np.ndarray:
     """
     WLSQ algorithm for calculating AR parameters
     :param samples: the samples of the signal
     :param p: AR model order
     :param theta0: starting theta parameters
-    :param d0:
+    :param d0: starting d parameter
     :return: calculated theta parameters using WLSQ method
     """
 
@@ -149,7 +149,7 @@ def WLSQ_algorithm(samples: np.ndarray, p: int, theta0: np.ndarray, d0: int) -> 
                 W[m, m] = 1
                
         d1 = (suma / N / 0.561722) ** 0.5
-        theta = np.linalg.inv(H.T.dot(W).dot(H)).dot(H.T).dot(W).dot(samples[p:N+p, 0])
+        theta = np.linalg.inv(H.T.dot(W).dot(H)).dot(H.T).dot(W).dot(samples[p:N + p, 0])
 
         # Step 6
         continue_func = 0
@@ -161,7 +161,7 @@ def WLSQ_algorithm(samples: np.ndarray, p: int, theta0: np.ndarray, d0: int) -> 
         d0 = d1
         theta0 = theta
         
-    return theta.reshape(8, )
+    return theta.reshape(p, )
 
 
 def calculate_coefficients(s: np.ndarray) -> tuple:
@@ -175,9 +175,9 @@ def calculate_coefficients(s: np.ndarray) -> tuple:
     ar_parameters_DUTTER = np.zeros((s.shape[0], 8))
     ar_parameters_WLSQ = np.zeros((s.shape[0], 8))
     for m in tqdm(range(length_signal, s.shape[0])):
-        ar_parameters_LSQ[m] = LSQ_algorithm(s[m - length_signal:m], 8)
-        ar_parameters_DUTTER[m], d = DUTTER_algorithm(s[m - length_signal:m], 8, ar_parameters_LSQ[m].T)
-        ar_parameters_WLSQ[m] = WLSQ_algorithm(s[m - length_signal:m], 8, ar_parameters_DUTTER[m].T, d)
+        ar_parameters_LSQ[m] = lsq_algorithm(s[m - length_signal:m], 8)
+        ar_parameters_DUTTER[m], d = dutter_algorithm(s[m - length_signal:m], 8, ar_parameters_LSQ[m].T)
+        ar_parameters_WLSQ[m] = wlsq_algorithm(s[m - length_signal:m], 8, ar_parameters_DUTTER[m].T, d)
         
     return ar_parameters_LSQ[length_signal:], ar_parameters_DUTTER[length_signal:], ar_parameters_WLSQ[length_signal:]
 
@@ -187,7 +187,7 @@ def synthesize_signal_strube(ar_parameters: list) -> tuple:
     Code for synthesizing the signal when the excitation is Strube's glottal wave
     both case of noised and non-noised signal is considered
     :param ar_parameters: AR parameters
-    :return: A tuple of synthesized strube's signals, first is without noise, while the second is with noise
+    :return: a tuple of synthesized strube's signals, first is without noise, while the second is with noise
     """
     # Parameters of the Strube wave excitation
 
@@ -203,10 +203,12 @@ def synthesize_signal_strube(ar_parameters: list) -> tuple:
             glotal_wave[m] = math.cos(math.pi * ((m + 1) * T_sample - Ts) / 2 / Tn)
         else:
             glotal_wave[m] = 0
+            
     G_pom = glotal_wave
     for m in range(20):
         glotal_wave = np.append(glotal_wave, G_pom, axis=0)
     glotal_wave = glotal_wave[:1100]
+    
     ug_prim = np.append(glotal_wave, np.array([[0]]), axis=0) - np.append(np.array([[0]]), glotal_wave, axis=0)
     ug_sek = np.append(ug_prim, np.array([[0]]), axis=0) - np.append(np.array([[0]]), ug_prim, axis=0)
     
@@ -241,7 +243,7 @@ def synthesize_signal_dirac(ar_parameters: list) -> tuple:
     Code for synthesizing the signal when the excitation is a train of Dirac pulses both case of noised and
     non-noised signal is considered
     :param ar_parameters: AR parameters
-    :return: A tuple of synthesized strube's signals, first is without noise, while the second is with noise
+    :return: a tuple of synthesized strube's signals, first is without noise, while the second is with noise
     """
 
     # Parameters of the Strube wave excitation
@@ -256,27 +258,27 @@ def synthesize_signal_dirac(ar_parameters: list) -> tuple:
         if (m + 1) % Tp_odb == 0:
             Dirac[m] = height
     
-    signal_dirac = signal.lfilter([1], ar_parameters, Dirac, axis=0)
+    signal_dirac_with_noise = signal.lfilter([1], ar_parameters, Dirac, axis=0)
     
-    signal_tmp = signal_dirac
-    s_dirac_orig = signal_dirac.copy()
+    signal_tmp = signal_dirac_with_noise
+    signal_dirac_without_noise = signal_dirac_with_noise.copy()
     
     eps = 0.05  # Probability of outlier occurrence
     sig1 = 2e-4
     sig2 = 100 * sig1
     pom1 = np.random.rand(1000)
     pom2 = np.random.randn(1000)
-    for m in range(signal_dirac.shape[0]):
+    for m in range(signal_dirac_with_noise.shape[0]):
         if pom1[m] < eps:
             temp = sig2 * pom2[m]
         else:
             temp = sig1 * pom2[m]
-        signal_tmp[m] = signal_dirac[m] + temp
+        signal_tmp[m] = signal_dirac_with_noise[m] + temp
         
-    signal_dirac = signal_tmp  # Synthesized signal with noise
-    plt.plot(s_dirac_orig)
+    signal_dirac_with_noise = signal_tmp  # Synthesized signal with noise
+    plt.plot(signal_dirac_without_noise)
     plt.xlabel('samples')
     plt.title('Synthesized signal when the excitation is train of Dirac pulses')
     plt.show()
 
-    return s_dirac_orig, signal_dirac
+    return signal_dirac_without_noise, signal_dirac_with_noise
